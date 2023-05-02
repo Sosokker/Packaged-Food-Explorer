@@ -78,13 +78,11 @@ class foodItem():
             return False
 
     def nutrient_score_intl(self):
-        # define the nutrient score factors
         nutrient_factors = {'fat': 9, 'saturated_fat': 10, 'trans_fat': 10, 'cholesterol': 5, 
                             'sodium': 6, 'carbohydrates': 7, 'sugars': 6, 'fiber': 5, 
                             'proteins': 5, 'vitamin_a': 15, 'vitamin_c': 15, 'calcium': 10, 
                             'iron': 10}
         
-        # calculate the nutrient score for each nutrient
         nutrient_scores = {}
         for nutrient, factor in nutrient_factors.items():
             value = getattr(self, nutrient+'_100g')
@@ -97,11 +95,11 @@ class foodItem():
         return total_score
     
     def _get_daily_requirement(self, nutrient):
-        # define the daily requirement for each nutrient
         daily_requirement = {'fat': 70, 'saturated_fat': 20, 'trans_fat': 2, 'cholesterol': 300, 
                              'sodium': 2000, 'carbohydrates': 260, 'sugars': 90, 'fiber': 38, 
                              'proteins': 50, 'vitamin_a': 900, 'vitamin_c': 90, 'calcium': 1000, 
                              'iron': 18}
+        
         # for nutrients without a daily requirement, return None
         return daily_requirement.get(nutrient, None)
 
@@ -112,3 +110,6 @@ class foodItem():
             product = cls(row)
             products.append(product)
         return products
+    
+    def __str__(self) -> str:
+        return self.product_name
