@@ -1,24 +1,29 @@
+import os
 import sqlite3
 import pandas as pd
 import re
 
-thai_df = pd.read_csv('thai_data.csv')
-us_df = pd.read_csv('us_data.csv')
-japan_df = pd.read_csv('japan_data.csv')
+def prepare_db():
 
-conn = sqlite3.connect('food_data.db')
+    dfs = []
+    for i in range(1, 5):
+        filename = f'Essential/data/us_data_{i}.csv'
+        df = pd.read_csv(filename)
+        dfs.append(df)
 
-thai_df = thai_df[~thai_df.product_name.str.contains('to be deleted', na=False, flags=re.IGNORECASE)]
-japan_df = japan_df[~japan_df.product_name.str.contains('to be deleted', na=False, flags=re.IGNORECASE)]
-us_df = us_df[~us_df.product_name.str.contains('to be deleted', na=False, flags=re.IGNORECASE)]
+    thai_df = pd.read_csv('Essential/data/thai_data.csv')
+    us_df = pd.concat(dfs, ignore_index=True)
+    japan_df = pd.read_csv('Essential/data/japan_data.csv')
 
-thai_df = thai_df.dropna(subset=['product_name'])
-japan_df = japan_df.dropna(subset=['product_name'])
-us_df = us_df.dropna(subset=['product_name'])
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(current_dir + r"\data\food_data.db")
 
-thai_df.to_sql('thai_food', conn, if_exists='replace', index=False)
-us_df.to_sql('us_food', conn, if_exists='replace', index=False)
-japan_df.to_sql('japan_food', conn, if_exists='replace', index=False)
+    # Clean
+    combined_df = pd.concat([thai_df, us_df, japan_df], ignore_index=True)
+    combined_df = combined_df[~combined_df.product_name.str.contains('to be deleted', na=False, flags=re.IGNORECASE)]
+    combined_df = combined_df.dropna(subset=['product_name'])
 
-conn.commit()
-conn.close()
+    combined_df.to_sql('food_data', conn, if_exists='replace')
+
+    conn.commit()
+    conn.close()
