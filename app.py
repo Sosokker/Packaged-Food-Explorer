@@ -1,6 +1,7 @@
 import tkinter as tk
 import requests
 import io
+from Essential.prepare_db import prepare_db
 from PIL import Image, ImageTk
 from Essential.FoodSearch import FoodSearch
 
@@ -8,7 +9,12 @@ from Essential.FoodSearch import FoodSearch
 class App:
     def __init__(self, master):
         self.master = master
-        self.food_search = FoodSearch('food_data.db')
+
+        try:
+            self.food_search = FoodSearch()
+        except FileNotFoundError:
+            prepare_db()
+            self.food_search = FoodSearch()
 
         self.search_var = tk.StringVar()
         self.search_var.trace('w', self.search_callback)
