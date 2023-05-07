@@ -39,12 +39,13 @@ class FoodSearch:
 
         try:
             with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                query = "SELECT * FROM food_data WHERE product_name LIKE ?"
-                cursor.execute(query, (f"%{user_input}%",))
-                results = cursor.fetchall()
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_product_name ON food_data(product_name)")
+
+                query = "SELECT * FROM food_data WHERE product_name LIKE ? LIMIT 100"
+                user_input = f"%{user_input}%"
+                results = conn.execute(query, (user_input,)).fetchall()
+
                 return results
         except sqlite3.Error as e:
-
             print(f"Database error: {e}")
             return []
