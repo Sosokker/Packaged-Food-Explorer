@@ -1,15 +1,9 @@
-import tkinter as tk
 import webbrowser
 import plotly.graph_objects as go
 import plotly.io as pio
 import tempfile
-import sqlite3
-import pandas as pd
 
 class plotter:
-    def __init__(self) -> None:
-        self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r'D:\Food-Nutrient-Viewer-Tkinter\Essential\data\food_data.db'))
-
     def nutrient_plotter(self, df, row_index, nutrient_indices, chart_type, popup=True, to_html_str=False):
         """
         Generate and display a Plotly graph of nutrient values for a specific row in a DataFrame.
