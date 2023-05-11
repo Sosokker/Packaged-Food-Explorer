@@ -49,3 +49,43 @@ class FoodSearch:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+        
+    def nutrient_show(self, product_name) -> dict:
+        """Get nutrient information for a given product name from the food database.
+
+            Parameters:
+                product_name (str): The name of the product to retrieve nutrient information for.
+
+            Returns:
+                dict: A dictionary containing nutrient information as key-value pairs, where the keys represent
+                    column names and the values represent the corresponding nutrient values. If no matching
+                    record is found, an empty dictionary is returned.
+
+            Raises:
+                sqlite3.Error: If there is an error while accessing the database.
+
+            """
+
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                query = """
+                    SELECT * 
+                    FROM food_data
+                    WHERE product_name = ?
+                """
+
+                cursor.execute(query, (product_name,))
+                result = cursor.fetchone()
+                column_names = [d[0] for d in cursor.description]
+                
+                if result:
+                    columns_nutrient = result[16:]
+                    data_dict = dict(zip(column_names[16:], columns_nutrient))
+                    return data_dict
+                else:
+                    return dict()
+
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
