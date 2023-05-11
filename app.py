@@ -1,16 +1,24 @@
+import os
+import sqlite3
 import tkinter as tk
 from tkinter import ttk
+import pandas as pd
 import requests
 import io
 from PIL import Image, ImageTk
 from Essential.prepare_db import prepare_db
 from Essential.FoodSearch import FoodSearch
 import threading
+import sqlite3
+import pandas as pd
+from Essential.plotter import plotter
 
 class App:
     def __init__(self, master):
         self.master = master
-        self.master.title('Food Search')
+        self.master.title('Package Food Database')
+        self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r"Essential\data\food_data.db"))
+        self.plotter = plotter()
 
         # Search food from database -----------------
 
@@ -24,7 +32,7 @@ class App:
         self.search_var.trace('w', self.search_callback)
 
         self.results_frame = ttk.Frame(self.master)
-        self.results_frame.grid(row=0, column=0, columnspan=2, rowspan=2, sticky="nsew")
+        self.results_frame.grid(row=0, column=0, columnspan=1, rowspan=2, sticky="nsew")
         self.results_frame.rowconfigure(0, weight=1)
         self.results_frame.columnconfigure(0, weight=1)
 
@@ -32,15 +40,15 @@ class App:
         self.scrollbar.grid(row=0, column=2,rowspan=2, sticky="ns")
 
         self.results_listbox = tk.Listbox(self.results_frame, yscrollcommand=self.scrollbar.set,height=20,width=20,selectmode=tk.SINGLE)
-        self.results_listbox.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.results_listbox.grid(row=0, column=0, columnspan=1, padx=5, pady=5, sticky="nsew")
 
         self.scrollbar.config(command=self.results_listbox.yview)
 
        # Filter frame -----------------
 
         self.filter_frame = ttk.LabelFrame(self.master, text="Filter")
-        self.filter_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
-
+        self.filter_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        
         # Filter components -----------------
 
         # Search
@@ -92,13 +100,14 @@ class App:
         # Image of food -----------------
 
         self.image_frame = ttk.Frame(self.master, borderwidth=2, relief=tk.SUNKEN)
-        self.image_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
-        self.image_frame.grid_propagate(0)
-
+        self.image_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew", rowspan=2)
+        self.image_frame.grid_propagate(1)
+        self.image_label = ttk.Label(self.image_frame)
+        self.image_label.pack(fill=tk.BOTH, expand=True)
         # Progress bar -----------------
 
         self.process_frame = tk.Frame(root)
-        self.process_frame.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
+        self.process_frame.grid(row=4, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
         s = ttk.Style()
         s.configure("red.Horizontal.TProgressbar", foreground='red', background='red')
         # Stackoverflow.com https://stackoverflow.com/questions/13510882/how-to-change-ttk-progressbar-color-in-python
@@ -112,12 +121,14 @@ class App:
         self.default_image = ImageTk.PhotoImage(Image.open(self.default_image_path))
         self.default_image_label = ttk.Label(self.image_frame, image=self.default_image)
         # self.default_image_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-        self.default_image_label.pack(anchor='w', fill=tk.BOTH)
+        self.default_image_label.pack(anchor='w', fill=tk.NONE)
 
         # Nutrient Frame
-
         self.nutrient_frame = ttk.LabelFrame(self.master, text="Nutrient")
-        self.nutrient_frame.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
+        self.nutrient_frame.grid(row=2, column=1, padx=10, pady=10, sticky="nsew", rowspan=2)
+        self.nutrient_table = NutrientTableHolder(self.nutrient_frame)
+        self.nutrient_table.create_table()
+        self.nutrient_frame.grid_propagate(1)
 
         # Others Frame (Graph/Analyze)
 
@@ -129,38 +140,6 @@ class App:
 
     # LIST BOX selected FUNC
 
-    def nutrient_labeler(self, product_name, frame):
-        count = 0
-        selected_nutrients = [
-            'energy-kcal_100g',
-            'proteins_100g',
-            'carbohydrates_100g',
-            'fat_100g',
-            'fiber_100g',
-            'sugars_100g',
-            'saturated-fat_100g',
-            'unsaturated-fat_100g'
-            'sodium_100g',
-            'vitamin-a_100g',
-            'vitamin-c_100g',
-            'calcium_100g',
-            'iron_100g',
-            'potassium_100g',
-            'cholesterol_100g',
-            'trans-fat_100g'
-        ]
-
-        for widget in frame.winfo_children():
-            widget.grid_forget()
-        for name, value in self.food_search.nutrient_show(product_name).items():
-            if name in selected_nutrients:
-                count += 1
-                if value is None:
-                    value_text = "N/A"
-                else:
-                    value_text = f"{value:.3f}"
-                ttk.Label(frame, text=f"{name}: {value_text}").grid(row=count, column=0)
-
     def on_item_selected(self, event):
         widget = event.widget
         selection = widget.curselection()
@@ -169,7 +148,7 @@ class App:
             value = widget.get(index)
             self.selected_item = value
             self.show_image(self.selected_item)
-            self.nutrient_labeler(self.selected_item, self.nutrient_frame)
+            self.nutrient_table.nutrient_labeler(self.food_search.nutrient_show(self.selected_item))
 
     # SEARCH FUNC
 
@@ -216,7 +195,8 @@ class App:
         response = requests.get(image_url)
         img_data = response.content
         img = Image.open(io.BytesIO(img_data))
-        img = img.resize((300, 300), Image.LANCZOS)
+        img.thumbnail((300, 300), Image.LANCZOS)
+
         img_tk = ImageTk.PhotoImage(img)
 
         self.master.after(0, self.hide_progress_bar)
@@ -241,9 +221,83 @@ class App:
 
         image_label = tk.Label(self.image_frame, image=image)
         image_label.image = image
-        image_label.grid(row=0, column=2)
-
+        image_label.pack(anchor='w', fill=tk.BOTH)
     # ---------------------
+
+class NutrientTableHolder:
+    def __init__(self, root):
+        self.root = root
+        self.treeview = None
+
+    def create_table(self):
+        selected_nutrients = [
+            'energy-kcal_100g',
+            'proteins_100g',
+            'carbohydrates_100g',
+            'fat_100g',
+            'fiber_100g',
+            'sugars_100g',
+            'saturated-fat_100g',
+            'unsaturated-fat_100g',
+            'sodium_100g',
+            'vitamin-a_100g',
+            'vitamin-c_100g',
+            'calcium_100g',
+            'iron_100g',
+            'potassium_100g',
+            'cholesterol_100g',
+            'trans-fat_100g'
+        ]
+
+        self.treeview = ttk.Treeview(self.root)
+        self.treeview['columns'] = ('Value')
+        self.treeview.heading("#0", text="Nutrient")
+        self.treeview.heading("Value", text="Value")
+        
+        for name in selected_nutrients:
+            value = 0
+            value_text = f"{value:.3f}"
+            self.treeview.insert('', 'end', text=name, values=(value_text,))
+        
+        self.treeview.pack(fill='both', expand=True)
+
+    def nutrient_labeler(self, nutrient_dict_product):
+        selected_nutrients = [
+            'energy-kcal_100g',
+            'proteins_100g',
+            'carbohydrates_100g',
+            'fat_100g',
+            'fiber_100g',
+            'sugars_100g',
+            'saturated-fat_100g',
+            'unsaturated-fat_100g',
+            'sodium_100g',
+            'vitamin-a_100g',
+            'vitamin-c_100g',
+            'calcium_100g',
+            'iron_100g',
+            'potassium_100g',
+            'cholesterol_100g',
+            'trans-fat_100g'
+        ]
+
+        for widget in self.root.winfo_children():
+            widget.pack_forget()
+
+        treeview = ttk.Treeview(self.root)
+        treeview['columns'] = ('Value')
+        treeview.heading("#0", text="Nutrient")
+        treeview.heading("Value", text="Value")
+
+        for name, value in nutrient_dict_product.items():
+            if name in selected_nutrients:
+                if value is None:
+                    value_text = "N/A"
+                else:
+                    value_text = f"{value:.3f}"
+                treeview.insert('', 'end', text=name, values=(value_text,))
+
+        treeview.pack(fill='both', expand=True)
 
 root = tk.Tk()
 app = App(root)
