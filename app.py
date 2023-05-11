@@ -12,6 +12,8 @@ import threading
 import sqlite3
 import pandas as pd
 from Essential.plotter import plotter
+import tempfile
+import webview
 
 class App:
     def __init__(self, master):
@@ -128,15 +130,20 @@ class App:
         self.nutrient_frame.grid(row=2, column=1, padx=10, pady=10, sticky="nsew", rowspan=2)
         self.nutrient_table = NutrientTableHolder(self.nutrient_frame)
         self.nutrient_table.create_table()
-        self.nutrient_frame.grid_propagate(1)
 
         # Others Frame (Graph/Analyze)
 
+        self.graph_frame = ttk.LabelFrame(self.master, text="Bar Macronutrients Graph")
+        self.graph_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+
+        self.fullview = ttk.LabelFrame(self.master, text="Options")
+        self.fullview.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+
         # * Configure the window size and position
         # self.master.attributes('-fullscreen', True)
-        # width= self.master.winfo_screenwidth()
-        # height= self.master.winfo_screenheight()
-        # self.master.geometry("%dx%d" % (width, height))
+        width= self.master.winfo_screenwidth()
+        height= self.master.winfo_screenheight()
+        self.master.geometry("%dx%d" % (width, height))
 
     # LIST BOX selected FUNC
 
@@ -149,6 +156,7 @@ class App:
             self.selected_item = value
             self.show_image(self.selected_item)
             self.nutrient_table.nutrient_labeler(self.food_search.nutrient_show(self.selected_item))
+            self.plot_preview(self.graph_frame, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='bar')
 
     # SEARCH FUNC
 
@@ -223,6 +231,18 @@ class App:
         image_label.image = image
         image_label.pack(anchor='w', fill=tk.BOTH)
     # ---------------------
+
+    # Plot zone
+
+    def plot_preview(self, frame, df, row_index: int, nutrient_indices: list, g_type: str):
+        for widget in frame.winfo_children():
+            widget.pack_forget()
+        self.p = plotter()
+        self.p.nutrient_plotter(df, row_index, nutrient_indices, g_type, popup=False, frame=frame)
+
+    def plot_popup(self, df, row_index: int, nutrient_indices: list, g_type: str):
+        self.p = plotter()
+        self.p.nutrient_plotter(df, row_index, nutrient_indices, g_type, popup=True)
 
 class NutrientTableHolder:
     def __init__(self, root):
