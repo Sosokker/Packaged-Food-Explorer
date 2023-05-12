@@ -1,4 +1,3 @@
-import os
 import sqlite3
 import tkinter as tk
 from tkinter import ttk
@@ -12,8 +11,7 @@ import threading
 import sqlite3
 import pandas as pd
 from Essential.plotter import plotter
-import tempfile
-import webview
+
 
 class App:
     def __init__(self, master):
@@ -21,7 +19,7 @@ class App:
         self.master.title('Package Food Database')
         self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r"Essential\data\food_data.db"))
         self.plotter = plotter()
-
+        self.__curr_index = 0
         # Search food from database -----------------
 
         try:
@@ -51,59 +49,71 @@ class App:
         self.filter_frame = ttk.LabelFrame(self.master, text="Filter")
         self.filter_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
         
+        self.checkbox_frame = ttk.LabelFrame(self.filter_frame, text="Categories")
+        self.checkbox_frame.grid(row=1, column=0, sticky="nsew")
+
+        self.nutrient_comp_frame = ttk.LabelFrame(self.filter_frame, text="Nutrients Quantity")
+        self.nutrient_comp_frame.grid(row=2, column=0, sticky="nsew")
+
+        self.calories_comp =ttk.LabelFrame(self.nutrient_comp_frame, text="Calories")
+        self.calories_comp.grid(row=0, column=0, sticky="nsew")
+
+        self.protein_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Protein")
+        self.protein_comp.grid(row=0, column=1, sticky="nsew")
+
+        self.carbohydrate_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Carbohydrate")
+        self.carbohydrate_comp.grid(row=0, column=2, sticky="nsew")
+
+        self.fat_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Fat")
+        self.fat_comp.grid(row=1, column=0, sticky="nsew")
+
+        self.sugar_comp =ttk.LabelFrame(self.nutrient_comp_frame, text="Sugar")
+        self.sugar_comp.grid(row=1, column=1, sticky="nsew")
         # Filter components -----------------
 
-        # Search
-        self.search_entry = ttk.Entry(self.filter_frame, textvariable=self.search_var)
-        self.search_entry.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
-
-        self.search_button = ttk.Button(self.filter_frame, text="Search", command=self.start_search)
-        self.search_button.grid(row=0, column=4, padx=10, pady=10, sticky="nsew")
-
-        # Filter
+        # * Filter Drop Down
+        ttk.Label(self.filter_frame, text = "Select the Country :").grid(column = 0, 
+                row = 0, padx = 2)
         self.country_var = tk.StringVar()
         self.country_dropdown = ttk.Combobox(self.filter_frame, textvariable=self.country_var, values=["Any" ,"Thai", "Japan", "US"])
-        self.country_dropdown.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+        self.country_dropdown.configure()
+        self.country_dropdown.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
 
+        # * Filter CheckBox
         self.organic_var = tk.IntVar()
-        self.organic_checkbox = ttk.Checkbutton(self.filter_frame, text="Organic", variable=self.organic_var)
+        self.organic_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Organic", variable=self.organic_var)
         self.organic_checkbox.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
         self.plant_based_var = tk.IntVar()
-        self.plant_based_checkbox = ttk.Checkbutton(self.filter_frame, text="Plant-Based", variable=self.plant_based_var)
+        self.plant_based_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Plant-Based", variable=self.plant_based_var)
         self.plant_based_checkbox.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 
         self.beverages_var = tk.IntVar()
-        self.beverages_checkbox = ttk.Checkbutton(self.filter_frame, text="Beverages", variable=self.beverages_var)
+        self.beverages_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Beverages", variable=self.beverages_var)
         self.beverages_checkbox.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
 
         self.snack_var = tk.IntVar()
-        self.snack_checkbox = ttk.Checkbutton(self.filter_frame, text="Snack", variable=self.snack_var)
+        self.snack_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Snack", variable=self.snack_var)
         self.snack_checkbox.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
 
+        # * Filter Value filter
         self.calories_var = tk.StringVar()
-        self.calories_entry = ttk.Entry(self.filter_frame, textvariable=self.calories_var)
-        self.calories_entry.grid(row=5, column=0, padx=10, pady=5, sticky="nsew")
+        self.calories_entry = ttk.Entry(self.calories_comp, textvariable=self.calories_var)
+        self.calories_entry.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
 
-        self.nutrient_var = tk.StringVar()
-        self.nutrient_dropdown = ttk.Combobox(self.filter_frame, textvariable=self.nutrient_var, values=["Protein", "Carbohydrates", "Fat", ""])
-        self.nutrient_dropdown.grid(row=6, column=0, padx=10, pady=5, sticky="nsew")
+        self.calories_more_op = tk.IntVar()
+        self.calories_op = ttk.Checkbutton(self.calories_comp, text="More than", variable=self.calories_more_op)
+        self.calories_op.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 
-        self.nutrient_value_var = tk.StringVar()
-        self.nutrient_value_entry = ttk.Entry(self.filter_frame, textvariable=self.nutrient_value_var)
-        self.nutrient_value_entry.grid(row=7, column=0, padx=10, pady=5, sticky="nsew")
+        self.calories_less_val = tk.IntVar()
+        self.calories_op = ttk.Checkbutton(self.calories_comp, text="Less than", variable=self.calories_less_val)
+        self.calories_op.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
-        # Filter components (continued) -----------------
-
-        self.nutrient_operator_var = tk.StringVar()
-        self.nutrient_operator_dropdown = ttk.Combobox(self.filter_frame, textvariable=self.nutrient_operator_var, values=["<", ">", "="])
-        self.nutrient_operator_dropdown.grid(row=8, column=0, padx=10, pady=5, sticky="nsew")
 
         # Image of food -----------------
 
         self.image_frame = ttk.Frame(self.master, borderwidth=2, relief=tk.SUNKEN)
         self.image_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew", rowspan=2)
-        self.image_frame.grid_propagate(1)
         self.image_label = ttk.Label(self.image_frame)
         self.image_label.pack(fill=tk.BOTH, expand=True)
         # Progress bar -----------------
@@ -119,11 +129,11 @@ class App:
 
         # Default image (Not Found) -----------------
 
-        self.default_image_path = 'resources/notfound.png'  # Replace with the correct path to your default image
+        self.default_image_path = 'resources/notfound.png'
         self.default_image = ImageTk.PhotoImage(Image.open(self.default_image_path))
         self.default_image_label = ttk.Label(self.image_frame, image=self.default_image)
         # self.default_image_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-        self.default_image_label.pack(anchor='w', fill=tk.NONE)
+        self.default_image_label.pack(anchor='w', fill=tk.BOTH)
 
         # Nutrient Frame
         self.nutrient_frame = ttk.LabelFrame(self.master, text="Nutrient")
@@ -133,11 +143,24 @@ class App:
 
         # Others Frame (Graph/Analyze)
 
-        self.graph_frame = ttk.LabelFrame(self.master, text="Bar Macronutrients Graph")
+        self.graph_frame = ttk.LabelFrame(self.master, text="Bar Macronutrients Graph", width=350, height=300)
         self.graph_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+        self.graph_frame.grid_propagate(0)
 
+        #* Option + Search
         self.fullview = ttk.LabelFrame(self.master, text="Options")
-        self.fullview.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+        self.fullview.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
+
+        self.popup_plot = ttk.Button(self.fullview, text="Full Plot", command=self.plot_popup)
+        self.popup_plot.grid(row=1, column=1, padx=10, pady=10)
+        self.popup_plot.configure(state=tk.DISABLED)
+
+        # Search
+        self.search_entry = ttk.Entry(self.fullview, textvariable=self.search_var)
+        self.search_entry.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        self.search_button = ttk.Button(self.fullview, text="Search", command=self.start_search)
+        self.search_button.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         # * Configure the window size and position
         # self.master.attributes('-fullscreen', True)
@@ -152,11 +175,13 @@ class App:
         selection = widget.curselection()
         if selection:
             index = selection[0]
+            self.__curr_index = selection[0]
             value = widget.get(index)
             self.selected_item = value
             self.show_image(self.selected_item)
             self.nutrient_table.nutrient_labeler(self.food_search.nutrient_show(self.selected_item))
             self.plot_preview(self.graph_frame, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='bar')
+            self.popup_plot.configure(state=tk.NORMAL)
 
     # SEARCH FUNC
 
@@ -240,9 +265,19 @@ class App:
         self.p = plotter()
         self.p.nutrient_plotter(df, row_index, nutrient_indices, g_type, popup=False, frame=frame)
 
-    def plot_popup(self, df, row_index: int, nutrient_indices: list, g_type: str):
+    def plot_popup(self):
         self.p = plotter()
-        self.p.nutrient_plotter(df, row_index, nutrient_indices, g_type, popup=True)
+        self.p.nutrient_plotter(self.df, self.__curr_index, [17,25, 32, 26, 18, 19, 38, 36, 23, 24], 'barpie')
+
+    # --------------------- Properties
+
+    @property
+    def getCurrIndex(self):
+        return self.__curr_index
+    
+    @getCurrIndex.setter
+    def setCurrIndex(self, val):
+        self.__curr_index = val
 
 class NutrientTableHolder:
     def __init__(self, root):
@@ -291,6 +326,7 @@ class NutrientTableHolder:
             'sugars_100g',
             'saturated-fat_100g',
             'unsaturated-fat_100g',
+            'salt_100g',
             'sodium_100g',
             'vitamin-a_100g',
             'vitamin-c_100g',
@@ -320,6 +356,7 @@ class NutrientTableHolder:
         treeview.pack(fill='both', expand=True)
 
 root = tk.Tk()
+root.deiconify()
 app = App(root)
 app.results_listbox.bind('<<ListboxSelect>>', app.on_item_selected)
 
