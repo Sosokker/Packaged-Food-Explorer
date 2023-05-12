@@ -20,11 +20,6 @@ class App:
         self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r"Essential\data\food_data.db"))
         self.plotter = plotter()
         self.__curr_index = 0
-
-        # ! For plot
-        self.ind = []
-        self.gmode = None
-        # ! --------
         
         # Search food from database -----------------
 
@@ -221,10 +216,10 @@ class App:
         self.popup_plot.grid(row=1, column=0, padx=10, pady=10)
         self.popup_plot.configure(state=tk.DISABLED)
 
-        self.descriptive_stat = ttk.Button(self.sub_plot, text='Statistic Of Current Filtered Data', command=self.show_des_stat)
+        self.descriptive_stat = ttk.Button(self.sub_plot, text='Statistic of This Dataset', command=self.show_des_stat)
         self.descriptive_stat.grid(row=2, column=0, padx=10, pady=10, columnspan=2)
 
-        self.plotall = ttk.Button(self.sub_plot, text="Plot All Component", command=self.plot_popup)
+        self.plotall = ttk.Button(self.sub_plot, text="Plot All Component", command=self.plot_all)
         self.plotall.grid(row=1, column=1, padx=10, pady=10)
         self.plotall.configure(state=tk.DISABLED)
 
@@ -436,8 +431,29 @@ class App:
         self.p.nutrient_plotter(df, row_index, nutrient_indices, g_type, popup=False, frame=frame)
 
     def plot_popup(self):
-        self.ind = 1
-        self.gmode = 1
+        indices = [17,25, 32, 26, 18, 19, 38, 36, 23, 24]
+        checker = self.cal16.get()+self.pro35.get()+self.car25.get()+self.car25.get()+self.fat17.get()+self.sodium38.get()+self.tran23.get()+self.cholesterol24.get()
+        if checker != 0:
+            indices = []
+            if self.cal16.get() == 1:
+                indices.append(16)
+            if self.pro35.get() == 1:
+                indices.append(35)
+            if self.car25.get() == 1:
+                indices.append(25)
+            if self.fat17.get() == 1:
+                indices.append(17)
+            if self.sodium38.get() == 1:
+                indices.append(38)
+            if self.tran23.get() == 1:
+                indices.append(23)
+            if self.cholesterol24.get() == 1:
+                indices.append(24)
+
+        self.p = plotter()
+        self.p.nutrient_plotter(self.df, self.__curr_index, indices, 'barpie')
+
+    def plot_all(self):
         self.p = plotter()
         self.p.nutrient_plotter(self.df, self.__curr_index, [17,25, 32, 26, 18, 19, 38, 36, 23, 24], 'barpie')
 
@@ -446,6 +462,7 @@ class App:
     def show_des_stat(self):
         self.d = Descriptive(self.df[['product_name', 'carbohydrates_100g','sugars_100g','energy-kcal_100g','fat_100g','proteins_100g']])
         self.d.show_statistics()
+
     # --------------------- Properties
 
     @property
