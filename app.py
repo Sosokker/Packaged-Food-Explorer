@@ -20,6 +20,12 @@ class App:
         self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r"Essential\data\food_data.db"))
         self.plotter = plotter()
         self.__curr_index = 0
+
+        # ! For plot
+        self.ind = []
+        self.gmode = None
+        # ! --------
+        
         # Search food from database -----------------
 
         try:
@@ -50,25 +56,25 @@ class App:
         self.filter_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         self.checkbox_frame = ttk.LabelFrame(self.filter_frame, text="Categories")
-        self.checkbox_frame.grid(row=1, column=0, sticky="nsew")
+        self.checkbox_frame.grid(row=1, column=0, sticky="nsew", padx=15)
 
         self.nutrient_comp_frame = ttk.LabelFrame(self.filter_frame, text="Nutrients Quantity")
-        self.nutrient_comp_frame.grid(row=2, column=0, sticky="nsew")
+        self.nutrient_comp_frame.grid(row=2, column=0, sticky="nsew", pady=5)
 
         self.calories_comp =ttk.LabelFrame(self.nutrient_comp_frame, text="Calories")
-        self.calories_comp.grid(row=0, column=0, sticky="nsew")
+        self.calories_comp.grid(row=0, column=0, sticky="nsew", padx=15)
 
         self.protein_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Protein")
-        self.protein_comp.grid(row=0, column=1, sticky="nsew")
+        self.protein_comp.grid(row=0, column=1, sticky="nsew", padx=15)
 
         self.carbohydrate_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Carbohydrate")
-        self.carbohydrate_comp.grid(row=1, column=1, sticky="nsew")
+        self.carbohydrate_comp.grid(row=1, column=1, sticky="nsew", padx=15)
 
         self.fat_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Fat")
-        self.fat_comp.grid(row=1, column=0, sticky="nsew")
+        self.fat_comp.grid(row=1, column=0, sticky="nsew", padx=15)
 
         self.country_frame = ttk.LabelFrame(self.filter_frame, text="Country")
-        self.country_frame.grid(row=0, column=0, sticky='nsew')
+        self.country_frame.grid(row=0, column=0, sticky='nsew', padx=15)
         # Filter components -----------------
 
         # * Filter Drop Down
@@ -149,6 +155,7 @@ class App:
         self.image_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew", rowspan=2)
         self.image_label = ttk.Label(self.image_frame)
         self.image_label.pack(fill=tk.BOTH, expand=True)
+
         # Progress bar -----------------
 
         self.process_frame = tk.Frame(root)
@@ -176,29 +183,108 @@ class App:
 
         # Others Frame (Graph/Analyze)
 
-        self.graph_frame = ttk.LabelFrame(self.master, text="Bar Macronutrients Graph", width=350, height=300)
+        self.graph_frame = ttk.Notebook(self.master, width=350, height=300)
         self.graph_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
         self.graph_frame.grid_propagate(0)
 
+        self.g1f = ttk.LabelFrame(self.graph_frame, text="Bar Macronutrients Graph", width=350, height=300)
+        self.g1f.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        self.g1f.grid_propagate(0)
+
+        self.g2f = ttk.LabelFrame(self.graph_frame, text="Pie Macronutrients Graph", width=350, height=300)
+        self.g2f.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        self.g2f.grid_propagate(0)
+        self.graph_frame.add(self.g1f, text='Bar Graph')
+        self.graph_frame.add(self.g2f, text='Pie Graph')
+
         #* Option + Search
-        self.fullview = ttk.LabelFrame(self.master, text="Options")
+
+        self.fullview = ttk.Notebook(self.master)
         self.fullview.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
-        self.plot_frame = ttk.LabelFrame(self.fullview, text="Plot and Stat Options")
-        self.plot_frame.grid(row=1 ,column=0, sticky="nsew")
+        self.plot_frame = ttk.LabelFrame(self.fullview)
+        self.plot_frame.grid(row=1 ,column=0, sticky="nsew", padx=10)
 
-        self.popup_plot = ttk.Button(self.plot_frame, text="Full Plot", command=self.plot_popup)
-        self.popup_plot.grid(row=0, column=0, padx=10, pady=10)
+        self.search_frame = ttk.LabelFrame(self.fullview)
+        self.search_frame.grid(row=1 ,column=0, sticky="nsew", padx=10)
+
+        self.sub_search = ttk.LabelFrame(self.search_frame, text="Search and Adjust")
+        self.sub_search.pack(fill=tk.BOTH, padx=5)
+
+        self.sub_plot = ttk.LabelFrame(self.plot_frame, text="Plot")
+        self.sub_plot.pack(fill=tk.BOTH, padx=5)
+
+        self.fullview.add(self.search_frame, text="Search Page")
+        self.fullview.add(self.plot_frame, text="Plot Page")
+
+        self.popup_plot = ttk.Button(self.sub_plot, text="Plot", command=self.plot_popup)
+        self.popup_plot.grid(row=1, column=0, padx=10, pady=10)
         self.popup_plot.configure(state=tk.DISABLED)
 
-        self.descriptive_stat = ttk.Button(self.plot_frame, text='Statistic', command=self.show_des_stat)
-        self.descriptive_stat.grid(row=0, column=1, padx=10, pady=10)
-        # Search
-        self.search_entry = ttk.Entry(self.fullview, textvariable=self.search_var)
-        self.search_entry.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        self.descriptive_stat = ttk.Button(self.sub_plot, text='Statistic', command=self.show_des_stat)
+        self.descriptive_stat.grid(row=1, column=1, padx=10, pady=10)
 
-        self.search_button = ttk.Button(self.fullview, text="Search", command=self.start_search)
-        self.search_button.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        self.cal16 = tk.IntVar()
+        self.cal_plot = ttk.Checkbutton(self.sub_plot, text="Calories", variable=self.cal16)
+        self.cal_plot.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
+
+        self.pro35 = tk.IntVar()
+        self.pro_plot = ttk.Checkbutton(self.sub_plot, text="Protein", variable=self.pro35)
+        self.pro_plot.grid(row=2, column=1, sticky="nsew", padx=10, pady=5)
+
+        self.car25 = tk.IntVar()
+        self.car_plot = ttk.Checkbutton(self.sub_plot, text="Carbohydrate", variable=self.car25)
+        self.car_plot.grid(row=3, column=0, sticky="nsew", padx=10, pady=5)
+
+        self.fat17 = tk.IntVar()
+        self.fat_plot = ttk.Checkbutton(self.sub_plot, text="Fat", variable=self.fat17)
+        self.fat_plot.grid(row=3, column=1, sticky="nsew", padx=10, pady=5)
+
+        self.sodium38 = tk.IntVar()
+        self.sodium_plot = ttk.Checkbutton(self.sub_plot, text="Sodium", variable=self.sodium38)
+        self.sodium_plot.grid(row=4, column=0, sticky="nsew", padx=10, pady=5)
+
+        self.tran23 = tk.IntVar()
+        self.tran_plot = ttk.Checkbutton(self.sub_plot, text="Tran-fats", variable=self.tran23)
+        self.tran_plot.grid(row=4, column=0, sticky="nsew", padx=10, pady=5)
+
+        # Search
+
+        # This code is from <https://stackoverflow.com/questions/17635905/ttk-entry-background-colour>
+        entrystyle = ttk.Style()
+        entrystyle.element_create("plain.field", "from", "clam")
+        entrystyle.layout("EntryStyle.TEntry",
+                        [('Entry.plain.field', {'children': [(
+                            'Entry.background', {'children': [(
+                                'Entry.padding', {'children': [(
+                                    'Entry.textarea', {'sticky': 'nswe'})],
+                            'sticky': 'nswe'})], 'sticky': 'nswe'})],
+                            'border':'2', 'sticky': 'nswe'})])
+        entrystyle.configure("EntryStyle.TEntry",
+                        background="green", 
+                        foreground="grey",
+                        fieldbackground="gray")
+        # --------------------------------------------------------------------------------------------
+
+        ttk.Label(self.sub_search, text="Search Bar").pack(fill="both", pady=10, padx= 10)
+
+        self.search_entry = ttk.Entry(self.sub_search, textvariable=self.search_var, style="EntryStyle.TEntry")
+        self.search_entry.pack(fill="both", pady=10, padx= 10)
+
+        self.search_button = ttk.Button(self.sub_search, text="Search", command=self.start_search)
+        self.search_button.pack(fill="both", pady=10, padx= 10)
+
+        self.limiting_var = tk.StringVar(value=0)
+
+        ttk.Label(self.sub_search, text="Set Limit Per Search").pack(fill="both", pady=10, padx= 10)
+
+        self.current_limit = tk.StringVar(value=0)
+        self.spinbox_limit = ttk.Spinbox(self.sub_search,from_=0,to=50000,textvariable=self.current_limit) 
+        self.spinbox_limit.pack(fill="both", pady=10, padx= 10)
+
+        self.apply_filter = tk.IntVar(value=1)
+        self.apply_filter_box = ttk.Checkbutton(self.sub_search, text="Apply Filter", variable=self.apply_filter)
+        self.apply_filter_box.pack(fill="both", pady=10, padx= 10)
 
         # * Configure the window size and position
         # self.master.attributes('-fullscreen', True)
@@ -218,9 +304,10 @@ class App:
             self.selected_item = value
             self.show_image(self.selected_item)
             self.nutrient_table.nutrient_labeler(self.food_search.nutrient_show(self.selected_item))
-            self.plot_preview(self.graph_frame, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='bar')
+            self.plot_preview(self.g1f, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='bar')
+            self.plot_preview(self.g2f, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='pie')
             self.popup_plot.configure(state=tk.NORMAL)
-            
+
     # SEARCH FUNC
 
     def search_callback(self, *args):
@@ -340,6 +427,8 @@ class App:
         self.p.nutrient_plotter(df, row_index, nutrient_indices, g_type, popup=False, frame=frame)
 
     def plot_popup(self):
+        self.ind = 1
+        self.gmode = 1
         self.p = plotter()
         self.p.nutrient_plotter(self.df, self.__curr_index, [17,25, 32, 26, 18, 19, 38, 36, 23, 24], 'barpie')
 
