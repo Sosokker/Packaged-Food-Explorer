@@ -164,7 +164,7 @@ class App:
         s.configure("red.Horizontal.TProgressbar", foreground='red', background='red')
         # Stackoverflow.com https://stackoverflow.com/questions/13510882/how-to-change-ttk-progressbar-color-in-python
         self.progress_bar = ttk.Progressbar(self.process_frame, style="red.Horizontal.TProgressbar", orient="horizontal",
-                        length=700, mode="indeterminate")
+                        length=500, mode="indeterminate")
         self.progress_bar.grid(row=0, column=0)
 
         # Default image (Not Found) -----------------
@@ -221,32 +221,40 @@ class App:
         self.popup_plot.grid(row=1, column=0, padx=10, pady=10)
         self.popup_plot.configure(state=tk.DISABLED)
 
-        self.descriptive_stat = ttk.Button(self.sub_plot, text='Statistic', command=self.show_des_stat)
-        self.descriptive_stat.grid(row=1, column=1, padx=10, pady=10)
+        self.descriptive_stat = ttk.Button(self.sub_plot, text='Statistic Of Current Filtered Data', command=self.show_des_stat)
+        self.descriptive_stat.grid(row=2, column=0, padx=10, pady=10, columnspan=2)
+
+        self.plotall = ttk.Button(self.sub_plot, text="Plot All Component", command=self.plot_popup)
+        self.plotall.grid(row=1, column=1, padx=10, pady=10)
+        self.plotall.configure(state=tk.DISABLED)
 
         self.cal16 = tk.IntVar()
         self.cal_plot = ttk.Checkbutton(self.sub_plot, text="Calories", variable=self.cal16)
-        self.cal_plot.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
+        self.cal_plot.grid(row=3, column=0, sticky="nsew", padx=10, pady=5)
 
         self.pro35 = tk.IntVar()
         self.pro_plot = ttk.Checkbutton(self.sub_plot, text="Protein", variable=self.pro35)
-        self.pro_plot.grid(row=2, column=1, sticky="nsew", padx=10, pady=5)
+        self.pro_plot.grid(row=3, column=1, sticky="nsew", padx=10, pady=5)
 
         self.car25 = tk.IntVar()
         self.car_plot = ttk.Checkbutton(self.sub_plot, text="Carbohydrate", variable=self.car25)
-        self.car_plot.grid(row=3, column=0, sticky="nsew", padx=10, pady=5)
+        self.car_plot.grid(row=4, column=0, sticky="nsew", padx=10, pady=5)
 
         self.fat17 = tk.IntVar()
         self.fat_plot = ttk.Checkbutton(self.sub_plot, text="Fat", variable=self.fat17)
-        self.fat_plot.grid(row=3, column=1, sticky="nsew", padx=10, pady=5)
+        self.fat_plot.grid(row=4, column=1, sticky="nsew", padx=10, pady=5)
 
         self.sodium38 = tk.IntVar()
         self.sodium_plot = ttk.Checkbutton(self.sub_plot, text="Sodium", variable=self.sodium38)
-        self.sodium_plot.grid(row=4, column=0, sticky="nsew", padx=10, pady=5)
+        self.sodium_plot.grid(row=5, column=0, sticky="nsew", padx=10, pady=5)
 
         self.tran23 = tk.IntVar()
         self.tran_plot = ttk.Checkbutton(self.sub_plot, text="Tran-fats", variable=self.tran23)
-        self.tran_plot.grid(row=4, column=0, sticky="nsew", padx=10, pady=5)
+        self.tran_plot.grid(row=5, column=1, sticky="nsew", padx=10, pady=5)
+
+        self.cholesterol24 = tk.IntVar()
+        self.tran_plot = ttk.Checkbutton(self.sub_plot, text="Cholesterol", variable=self.cholesterol24)
+        self.tran_plot.grid(row=6, column=0, sticky="nsew", padx=10, pady=5)
 
         # Search
 
@@ -274,13 +282,11 @@ class App:
         self.search_button = ttk.Button(self.sub_search, text="Search", command=self.start_search)
         self.search_button.pack(fill="both", pady=10, padx= 10)
 
-        self.limiting_var = tk.StringVar(value=0)
-
         ttk.Label(self.sub_search, text="Set Limit Per Search").pack(fill="both", pady=10, padx= 10)
 
-        self.current_limit = tk.StringVar(value=0)
-        self.spinbox_limit = ttk.Spinbox(self.sub_search,from_=0,to=50000,textvariable=self.current_limit) 
-        self.spinbox_limit.pack(fill="both", pady=10, padx= 10)
+        self.current_limit = tk.StringVar(value=100)
+        self.spinb_lim = ttk.Spinbox(self.sub_search,from_=0,to=50000,textvariable=self.current_limit) 
+        self.spinb_lim.pack(fill="both", pady=10, padx= 10)
 
         self.apply_filter = tk.IntVar(value=1)
         self.apply_filter_box = ttk.Checkbutton(self.sub_search, text="Apply Filter", variable=self.apply_filter)
@@ -288,9 +294,9 @@ class App:
 
         # * Configure the window size and position
         # self.master.attributes('-fullscreen', True)
-        width= self.master.winfo_screenwidth()
-        height= self.master.winfo_screenheight()
-        self.master.geometry("%dx%d" % (width, height))
+        # width= self.master.winfo_screenwidth()
+        # height= self.master.winfo_screenheight()
+        # self.master.geometry("%dx%d" % (width, height))
 
     # LIST BOX selected FUNC
 
@@ -307,6 +313,7 @@ class App:
             self.plot_preview(self.g1f, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='bar')
             self.plot_preview(self.g2f, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='pie')
             self.popup_plot.configure(state=tk.NORMAL)
+            self.plotall.configure(state=tk.NORMAL)
 
     # SEARCH FUNC
 
@@ -322,40 +329,42 @@ class App:
         countries = []
         categories_both = None
         column_filters = {}
+        if self.apply_filter.get() == 1:
+            if self.country_var.get() == "Any":
+                countries = None
+            else:
+                countries.append((self.country_var.get()))
 
-        if self.country_var.get() == "Any":
-            countries = None
+            if self.calories_var != None:
+                cqtext = f"{self.calories_var_op.get()}{self.calories_var.get()}"
+                column_filters[16] = cqtext
+            if self.protein_var != None:
+                pqtext = f"{self.protein_var_op.get()}{self.protein_var.get()}"
+                column_filters[35] = pqtext
+            if self.carbo_var != None:
+                ccqtext = f"{self.carbo_var_op.get()}{self.carbo_var.get()}"
+                column_filters[25] = ccqtext
+            if self.fat_var != None:
+                fqtext = f"{self.fat_var_op.get()}{self.fat_var.get()}"
+                column_filters[17] = fqtext
+
+            c = self.snack_var.get()+self.beverages_var.get()+self.plant_based_var.get()+self.organic_var.get()
+            if (c != 0) or (self.entry_own_var.get() != None):
+                categories_both = []
+                if self.snack_var.get() == 1:
+                    categories_both.append('snack')
+                if self.beverages_var.get() == 1:
+                    categories_both.append('beverage')
+                if self.plant_based_var.get() == 1:
+                    categories_both.append('plant')
+                if self.organic_var.get() == 1:
+                    categories_both.append('organic')
+                if self.entry_own_var.get() != None:
+                    categories_both.append(self.entry_own_var.get())
+
+            results = self.food_search.search(self.search_var.get(), countries=countries, column_filters=column_filters, categories_both=categories_both, limit=int(self.spinb_lim.get()))
         else:
-            countries.append((self.country_var.get()))
-
-        if self.calories_var != None:
-            cqtext = f"{self.calories_var_op.get()}{self.calories_var.get()}"
-            column_filters[16] = cqtext
-        if self.protein_var != None:
-            pqtext = f"{self.protein_var_op.get()}{self.protein_var.get()}"
-            column_filters[35] = pqtext
-        if self.carbo_var != None:
-            ccqtext = f"{self.carbo_var_op.get()}{self.carbo_var.get()}"
-            column_filters[25] = ccqtext
-        if self.fat_var != None:
-            fqtext = f"{self.fat_var_op.get()}{self.fat_var.get()}"
-            column_filters[17] = fqtext
-
-        c = self.snack_var.get()+self.beverages_var.get()+self.plant_based_var.get()+self.organic_var.get()
-        if (c != 0) or (self.entry_own_var.get() != None):
-            categories_both = []
-            if self.snack_var.get() == 1:
-                categories_both.append('snack')
-            if self.beverages_var.get() == 1:
-                categories_both.append('beverage')
-            if self.plant_based_var.get() == 1:
-                categories_both.append('plant')
-            if self.organic_var.get() == 1:
-                categories_both.append('organic')
-            if self.entry_own_var.get() != None:
-                categories_both.append(self.entry_own_var.get())
-
-        results = self.food_search.search(self.search_var.get(), countries=countries, limit=100, column_filters=column_filters, categories_both=categories_both)
+            results = self.food_search.search(self.search_var.get(), limit=int(self.spinb_lim.get()))
         # Call the update_results function on the main thread to update the GUI
         self.master.after(0, self.update_results, results)
 
