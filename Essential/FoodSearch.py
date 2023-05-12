@@ -23,9 +23,9 @@ class FoodSearch:
 
         self.db_path = db_path
         
-    def search(self, user_input, countries=None, limit=100) -> list:
+    def search(self, user_input, countries=None, limit=100, categories=None, categories_both=None) -> list:
         """
-        Search for food data based on the user's input and country filter.
+        Search for food data based on the user's input, country filter, and category filter.
 
         Parameters:
             user_input (str): The input provided by the user to search for food data.
@@ -33,6 +33,10 @@ class FoodSearch:
                 If None, no filtering based on country will be applied. Defaults to None.
             limit (int, optional): The maximum number of search results to return.
                 Defaults to 100.
+            categories (list, optional): A list of category words to filter the results.
+                If None, no filtering based on categories will be applied. Defaults to None.
+            categories_both (list, optional): Same as categories
+                Anyway, the result from this one will contain all word in list.
 
         Returns:
             list: A list of tuples representing the search results from the database.
@@ -52,6 +56,24 @@ class FoodSearch:
                     country_filter = " OR ".join(["countries LIKE ?"] * len(countries))
                     query += f" AND ({country_filter})"
                     params.extend([f"%{country}%" for country in countries])
+
+                if categories is not None:
+                    category_filters = []
+                    for category in categories:
+                        category_filters.append("categories LIKE ? OR categories_tags LIKE ? OR categories_en LIKE ?")
+                        params.extend([f"%{category}%", f"%{category}%", f"%{category}%"])
+
+                    category_filter = " OR ".join(category_filters)
+                    query += f" AND ({category_filter})"
+                
+                if categories_both is not None:
+                    category_filters2 = []
+                    for category in categories_both:
+                        category_filters2.append("(categories LIKE ? OR categories_tags LIKE ? OR categories_en LIKE ?)")
+                        params.extend([f"%{category}%", f"%{category}%", f"%{category}%"])
+
+                    category_filter2 = " AND ".join(category_filters2)
+                    query += f" AND ({category_filter2})"
 
                 query += f" LIMIT {limit}"
                 results = conn.execute(query, params).fetchall()
@@ -103,5 +125,6 @@ class FoodSearch:
         
 
 # food_search = FoodSearch()
-# results = food_search.search("pizza", countries=["thai", "japan"])
+# results = food_search.search("apple", countries=["thai"], categories_both=["fruit", "snack"], limit=1)
+
 # print(results)
