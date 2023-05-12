@@ -11,7 +11,7 @@ import threading
 import sqlite3
 import pandas as pd
 from Essential.plotter import plotter
-
+from Essential.descriptive import Descriptive
 
 class App:
     def __init__(self, master):
@@ -184,10 +184,15 @@ class App:
         self.fullview = ttk.LabelFrame(self.master, text="Options")
         self.fullview.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
-        self.popup_plot = ttk.Button(self.fullview, text="Full Plot", command=self.plot_popup)
-        self.popup_plot.grid(row=1, column=1, padx=10, pady=10)
+        self.plot_frame = ttk.LabelFrame(self.fullview, text="Plot and Stat Options")
+        self.plot_frame.grid(row=1 ,column=0, sticky="nsew")
+
+        self.popup_plot = ttk.Button(self.plot_frame, text="Full Plot", command=self.plot_popup)
+        self.popup_plot.grid(row=0, column=0, padx=10, pady=10)
         self.popup_plot.configure(state=tk.DISABLED)
 
+        self.descriptive_stat = ttk.Button(self.plot_frame, text='Statistic', command=self.show_des_stat)
+        self.descriptive_stat.grid(row=0, column=1, padx=10, pady=10)
         # Search
         self.search_entry = ttk.Entry(self.fullview, textvariable=self.search_var)
         self.search_entry.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
@@ -338,6 +343,11 @@ class App:
         self.p = plotter()
         self.p.nutrient_plotter(self.df, self.__curr_index, [17,25, 32, 26, 18, 19, 38, 36, 23, 24], 'barpie')
 
+    # Descriptive
+
+    def show_des_stat(self):
+        self.d = Descriptive(self.df[['product_name', 'carbohydrates_100g','sugars_100g','energy-kcal_100g','fat_100g','proteins_100g']])
+        self.d.show_statistics()
     # --------------------- Properties
 
     @property
