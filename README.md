@@ -3,7 +3,6 @@
   <p align="center">
     GUI Application that explore and analyze packaged food dataset
     <br>
-    <a href="[https://world.openfoodfacts.org/data](https://world.openfoodfacts.org/data)">Data Source</a>
     
 </p>
 
@@ -28,7 +27,7 @@
 ## Quick start
 - Clone github repository
 ```
-git clone https://github.com/Sosokker/Food-Nutrient-Viewer-Tkinter
+git clone https://github.com/Sosokker/Packaged-Food-Explorer
 ```
 - pip install
 ```py
