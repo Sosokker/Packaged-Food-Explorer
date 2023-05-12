@@ -11,26 +11,30 @@
 ## Table of contents
 
 - [Table of contents](#table-of-contents)
+- [Feature](#feature)
 - [Quick start](#quick-start)
 - [What's included](#whats-included)
+- [How to use](#how-to-use)
+- [Used library and modules](#used-library-and-modules)
+- [GUI](#gui)
+- [UML Class Diagram and Design Pattern](#uml-class-diagram-and-design-pattern)
+- [Example of sequence diagram](#example-of-sequence-diagram)
+- [NOTE](#note)
 
+## Feature
+
+- Filter and plot data of each product
 
 ## Quick start
 - Clone github repository
 ```
 git clone https://github.com/Sosokker/Food-Nutrient-Viewer-Tkinter
 ```
-- run setup.py or pip
+- pip install
 ```py
 # pip
 pip install -r requirements.txt
 ```
-```py
-# or setup.py
-python setup.py install
-
-```
-
 - To start GUI window run app.py
 ```py
 python app.py
@@ -56,10 +60,41 @@ Main/
 │   │   └── us_data_4.csv
 │── resources/
 │   ├──loading.gif
-│   └──notfound.png
+│   ├──notfound.png
+│   └──gui_main.png 
 │── app.py
 │── main.ipynb
-│── setup.py
 │── requirements.txt
 └── README.md
 ```
+## How to use
+
+## Used library and modules
+
+- tkinter
+- sqlite3
+- plotly
+- matplotlib
+- pandas
+- numpy
+- pillow
+
+## GUI
+
+![GUI](/resources/gui_main.png)
+
+## UML Class Diagram and Design Pattern
+
+![UML](/resources/UML-Class-Diagram-Facade.png)
+
+- Use Facade Design Pattern
+
+## Example of sequence diagram
+
+![Seq](/resources/sequnce-diagram-plotter.png)
+
+## NOTE
+
+- Process data with file [main.ipynb](/main.ipynb) need .csv file from <a href="[https://reponame/issues/new?template=bug.md](https://world.openfoodfacts.org/data)">Data Source</a>
+
+- If error about "food_data.db" occur download <a href="[https://reponame/issues/new?template=bug.md](https://world.openfoodfacts.org/data)">food_data.db</a> and put in folder [data](/Essential/data/)
