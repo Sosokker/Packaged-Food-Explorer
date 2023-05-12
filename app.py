@@ -265,7 +265,7 @@ class App:
                             'border':'2', 'sticky': 'nswe'})])
         entrystyle.configure("EntryStyle.TEntry",
                         background="green", 
-                        foreground="grey",
+                        foreground="white",
                         fieldbackground="gray")
         # --------------------------------------------------------------------------------------------
 
