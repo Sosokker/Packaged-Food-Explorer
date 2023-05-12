@@ -40,7 +40,7 @@ class plotter:
                             yaxis_title='Value')
         elif chart_type == 'pie':
             fig = go.Figure(data=go.Pie(labels=nutrient_names, values=nutrient_values))
-            fig.update_layout(title=f'Nutrient of {product_name}')
+            fig.update_layout(title=f'Nutrient Ratio')
         elif chart_type == 'barpie':
             fig = make_subplots(rows=2, cols=2, specs=[[{"type": "xy"}, {"type": "domain"}], [{}, {}]])
             fig.add_trace(go.Pie(labels=nutrient_names, values=nutrient_values),
@@ -60,7 +60,7 @@ class plotter:
                 print(filename)
                 temp.write(encoded_html)
             temp.close()
-            webview.create_window('Nutrients Graph', filename)
+            webview.create_window('Nutrients Graph', filename, min_size=(600,500))
             webview.start()
             os.remove(filename)
         else:
