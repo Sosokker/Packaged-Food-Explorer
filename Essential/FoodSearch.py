@@ -35,9 +35,9 @@ class FoodSearch:
                         'vitamin-b6_100g': 49, 'vitamin-b9_100g': 50, 'vitamin-b12_100g': 51, 'bicarbonate_100g': 52, 
                         'potassium_100g': 53, 'chloride_100g': 54, 'calcium_100g': 55, 'phosphorus_100g': 56, 'iron_100g': 57, 
                         'magnesium_100g': 58, 'zinc_100g': 59, 'copper_100g': 60, 'manganese_100g': 61, 'fluoride_100g': 62, 
-                        'selenium_100g': 63, 'chromium_100g': 64, 'molybdenum_100g': 65, 'iodine_100g': 66, 'caffeine_100g': 67, 
-
+                        'selenium_100g': 63, 'chromium_100g': 64, 'molybdenum_100g': 65, 'iodine_100g': 66, 'caffeine_100g': 67,
                         'cocoa_100g': 68, 'carbon-footprint_100g': 69, 'carbon-footprint-from-meat-or-fish_100g': 70}
+        
         self.index_col = {0: 'index', 1: 'product_name', 2: 'brands', 3: 'brands_tags', 4: 'categories', 5: 'categories_tags', 
                           6: 'categories_en', 7: 'origins', 8: 'origins_tags', 9: 'origins_en', 10: 'countries', 11: 'countries_tags', 
                           12: 'countries_en', 13: 'image_url', 14: 'image_ingredients_url', 15: 'image_nutrition_url', 
@@ -167,5 +167,7 @@ class FoodSearch:
         
 
 # food_search = FoodSearch()
-# results = food_search.search("apple", countries=["thai"], categories=["fruit", "snack"], column_filters={16:">=1"}, limit=10)
+# # results = food_search.search("apple", countries=["thai"], categories=["fruit", "snack"], column_filters={16:">=1"}, limit=10)
+# results = food_search.search("", countries=["japan"])[3]
+
 # print(results)

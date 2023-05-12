@@ -48,7 +48,7 @@ class App:
 
         self.filter_frame = ttk.LabelFrame(self.master, text="Filter")
         self.filter_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-        
+
         self.checkbox_frame = ttk.LabelFrame(self.filter_frame, text="Categories")
         self.checkbox_frame.grid(row=1, column=0, sticky="nsew")
 
@@ -62,54 +62,87 @@ class App:
         self.protein_comp.grid(row=0, column=1, sticky="nsew")
 
         self.carbohydrate_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Carbohydrate")
-        self.carbohydrate_comp.grid(row=0, column=2, sticky="nsew")
+        self.carbohydrate_comp.grid(row=1, column=1, sticky="nsew")
 
         self.fat_comp = ttk.LabelFrame(self.nutrient_comp_frame, text="Fat")
         self.fat_comp.grid(row=1, column=0, sticky="nsew")
 
-        self.sugar_comp =ttk.LabelFrame(self.nutrient_comp_frame, text="Sugar")
-        self.sugar_comp.grid(row=1, column=1, sticky="nsew")
+        self.country_frame = ttk.LabelFrame(self.filter_frame, text="Country")
+        self.country_frame.grid(row=0, column=0, sticky='nsew')
         # Filter components -----------------
 
         # * Filter Drop Down
-        ttk.Label(self.filter_frame, text = "Select the Country :").grid(column = 0, 
-                row = 0, padx = 2)
         self.country_var = tk.StringVar()
-        self.country_dropdown = ttk.Combobox(self.filter_frame, textvariable=self.country_var, values=["Any" ,"Thai", "Japan", "US"])
-        self.country_dropdown.configure()
-        self.country_dropdown.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
+        self.country_dropdown = ttk.Combobox(self.country_frame, textvariable=self.country_var, values=["Any" ,"Thai", "Japan", "US"])
+        self.country_dropdown.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 
         # * Filter CheckBox
         self.organic_var = tk.IntVar()
         self.organic_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Organic", variable=self.organic_var)
-        self.organic_checkbox.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
+        self.organic_checkbox.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 
         self.plant_based_var = tk.IntVar()
         self.plant_based_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Plant-Based", variable=self.plant_based_var)
-        self.plant_based_checkbox.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
+        self.plant_based_checkbox.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
 
         self.beverages_var = tk.IntVar()
         self.beverages_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Beverages", variable=self.beverages_var)
-        self.beverages_checkbox.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
+        self.beverages_checkbox.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
         self.snack_var = tk.IntVar()
         self.snack_checkbox = ttk.Checkbutton(self.checkbox_frame, text="Snack", variable=self.snack_var)
-        self.snack_checkbox.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
+        self.snack_checkbox.grid(row=1, column=1, padx=10, pady=5, sticky="nsew")
+
+        self.entry_own_var = tk.StringVar()
+        self.entry_own = ttk.Entry(self.checkbox_frame, textvariable=self.entry_own_var)
+        self.entry_own.grid(row=0, column=2, padx=10, pady=5, sticky="nsew")
 
         # * Filter Value filter
+
+
+        self.calories_var_op = tk.StringVar()
+        self.calories_less_op = ttk.Radiobutton(self.calories_comp, text='Less than', value='<', variable=self.calories_var_op)
+        self.calories_more_op = ttk.Radiobutton(self.calories_comp, text='More than', value='>', variable=self.calories_var_op)
+        self.calories_less_op.grid(row=1, column=0)
+        self.calories_more_op.grid(row=2, column=0)
+
         self.calories_var = tk.StringVar()
         self.calories_entry = ttk.Entry(self.calories_comp, textvariable=self.calories_var)
         self.calories_entry.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
 
-        self.calories_more_op = tk.IntVar()
-        self.calories_op = ttk.Checkbutton(self.calories_comp, text="More than", variable=self.calories_more_op)
-        self.calories_op.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+        #!-------
+        self.protein_var_op = tk.StringVar()
+        self.protein_less_op = ttk.Radiobutton(self.protein_comp, text='Less than', value='<', variable=self.protein_var_op)
+        self.protein_more_op = ttk.Radiobutton(self.protein_comp, text='More than', value='>', variable=self.protein_var_op)
+        self.protein_less_op.grid(row=1, column=0)
+        self.protein_more_op.grid(row=2, column=0)
 
-        self.calories_less_val = tk.IntVar()
-        self.calories_op = ttk.Checkbutton(self.calories_comp, text="Less than", variable=self.calories_less_val)
-        self.calories_op.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
+        self.protein_var = tk.StringVar()
+        self.protein_entry = ttk.Entry(self.protein_comp, textvariable=self.protein_var)
+        self.protein_entry.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
 
+        #!-------
+        self.carbo_var_op = tk.StringVar()
+        self.carbo_less_op = ttk.Radiobutton(self.carbohydrate_comp, text='Less than', value='<', variable=self.carbo_var_op)
+        self.carbo_more_op = ttk.Radiobutton(self.carbohydrate_comp, text='More than', value='>', variable=self.carbo_var_op)
+        self.carbo_less_op.grid(row=1, column=0)
+        self.carbo_more_op.grid(row=2, column=0)
 
+        self.carbo_var = tk.StringVar()
+        self.carbo_entry = ttk.Entry(self.carbohydrate_comp, textvariable=self.carbo_var)
+        self.carbo_entry.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
+        
+        #!-------
+        self.fat_var_op = tk.StringVar()
+        self.fat_less_op = ttk.Radiobutton(self.fat_comp, text='Less than', value='<', variable=self.fat_var_op)
+        self.fat_more_op = ttk.Radiobutton(self.fat_comp, text='More than', value='>', variable=self.fat_var_op)
+        self.fat_less_op.grid(row=1, column=0)
+        self.fat_more_op.grid(row=2, column=0)
+
+        self.fat_var = tk.StringVar()
+        self.fat_entry = ttk.Entry(self.fat_comp, textvariable=self.fat_var)
+        self.fat_entry.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
+        
         # Image of food -----------------
 
         self.image_frame = ttk.Frame(self.master, borderwidth=2, relief=tk.SUNKEN)
@@ -182,7 +215,7 @@ class App:
             self.nutrient_table.nutrient_labeler(self.food_search.nutrient_show(self.selected_item))
             self.plot_preview(self.graph_frame, self.df, row_index=selection[0], nutrient_indices=[25, 26, 35, 17], g_type='bar')
             self.popup_plot.configure(state=tk.NORMAL)
-
+            
     # SEARCH FUNC
 
     def search_callback(self, *args):
@@ -192,9 +225,45 @@ class App:
         # Create a new thread to execute the search function
         search_thread = threading.Thread(target=self.search)
         search_thread.start()
-
+    
     def search(self):
-        results = self.food_search.search(self.search_var.get())
+        countries = []
+        categories_both = None
+        column_filters = {}
+
+        if self.country_var.get() == "Any":
+            countries = None
+        else:
+            countries.append((self.country_var.get()))
+
+        if self.calories_var != None:
+            cqtext = f"{self.calories_var_op.get()}{self.calories_var.get()}"
+            column_filters[16] = cqtext
+        if self.protein_var != None:
+            pqtext = f"{self.protein_var_op.get()}{self.protein_var.get()}"
+            column_filters[35] = pqtext
+        if self.carbo_var != None:
+            ccqtext = f"{self.carbo_var_op.get()}{self.carbo_var.get()}"
+            column_filters[25] = ccqtext
+        if self.fat_var != None:
+            fqtext = f"{self.fat_var_op.get()}{self.fat_var.get()}"
+            column_filters[17] = fqtext
+
+        c = self.snack_var.get()+self.beverages_var.get()+self.plant_based_var.get()+self.organic_var.get()
+        if (c != 0) or (self.entry_own_var.get() != None):
+            categories_both = []
+            if self.snack_var.get() == 1:
+                categories_both.append('snack')
+            if self.beverages_var.get() == 1:
+                categories_both.append('beverage')
+            if self.plant_based_var.get() == 1:
+                categories_both.append('plant')
+            if self.organic_var.get() == 1:
+                categories_both.append('organic')
+            if self.entry_own_var.get() != None:
+                categories_both.append(self.entry_own_var.get())
+
+        results = self.food_search.search(self.search_var.get(), countries=countries, limit=100, column_filters=column_filters, categories_both=categories_both)
         # Call the update_results function on the main thread to update the GUI
         self.master.after(0, self.update_results, results)
 
