@@ -23,12 +23,16 @@ class FoodSearch:
 
         self.db_path = db_path
         
-    def search(self, user_input) -> list:
+    def search(self, user_input, countries=None, limit=100) -> list:
         """
-        Search for food data based on the user's input.
+        Search for food data based on the user's input and country filter.
 
         Parameters:
             user_input (str): The input provided by the user to search for food data.
+            countries (list, optional): A list of country names to filter the results.
+                If None, no filtering based on country will be applied. Defaults to None.
+            limit (int, optional): The maximum number of search results to return.
+                Defaults to 100.
 
         Returns:
             list: A list of tuples representing the search results from the database.
@@ -41,9 +45,16 @@ class FoodSearch:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute("CREATE INDEX IF NOT EXISTS idx_product_name ON food_data(product_name)")
 
-                query = "SELECT * FROM food_data WHERE product_name LIKE ? LIMIT 100"
-                user_input = f"%{user_input}%"
-                results = conn.execute(query, (user_input,)).fetchall()
+                query = "SELECT * FROM food_data WHERE product_name LIKE ?"
+                params = [f"%{user_input}%"]
+
+                if countries is not None:
+                    country_filter = " OR ".join(["countries LIKE ?"] * len(countries))
+                    query += f" AND ({country_filter})"
+                    params.extend([f"%{country}%" for country in countries])
+
+                query += f" LIMIT {limit}"
+                results = conn.execute(query, params).fetchall()
 
                 return results
         except sqlite3.Error as e:
@@ -89,3 +100,8 @@ class FoodSearch:
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return []
+        
+
+# food_search = FoodSearch()
+# results = food_search.search("pizza", countries=["thai", "japan"])
+# print(results)
