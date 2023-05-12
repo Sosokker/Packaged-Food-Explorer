@@ -3,7 +3,7 @@
   <p align="center">
     GUI Application that explore and analyze packaged food dataset
     <br>
-    <a href="[https://reponame/issues/new?template=bug.md](https://world.openfoodfacts.org/data)">Data Source</a>
+    <a href="[https://world.openfoodfacts.org/data](https://world.openfoodfacts.org/data)">Data Source</a>
     
 </p>
 
@@ -95,6 +95,6 @@ Main/
 
 ## NOTE
 
-- Process data with file [main.ipynb](/main.ipynb) need .csv file from <a href="[https://reponame/issues/new?template=bug.md](https://world.openfoodfacts.org/data)">Data Source</a>
+- Process data with file [main.ipynb](/main.ipynb) need .csv file from [Data Source](https://world.openfoodfacts.org/data)
 
-- If error about "food_data.db" occur download <a href="[https://reponame/issues/new?template=bug.md](https://world.openfoodfacts.org/data)">food_data.db</a> and put in folder [data](/Essential/data/)
+- If error about "food_data.db" occur download [food_data.db](https://drive.google.com/file/d/1QuVPKZVv0UGEHdH2AYX9g7D-vh3YZCAM/view?usp=share_link) and put in folder [data](/Essential/data/)
