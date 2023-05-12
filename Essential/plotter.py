@@ -20,7 +20,7 @@ class plotter:
             popup (bool): to ask if you want to popup new webview window or embed to gui
 
         Returns:
-            bytes (html_encoded string)
+            None
 
         Raises:
             ValueError: If an invalid chart type is provided.
