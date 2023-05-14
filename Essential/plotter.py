@@ -6,6 +6,7 @@ import tempfile
 import tkinter as tk
 import webview
 from PIL import Image, ImageTk
+import kaleido
 
 class plotter:
     def nutrient_plotter(self, df, row_index, nutrient_indices, chart_type, popup=True, frame=None):
