@@ -17,17 +17,18 @@ class App:
     def __init__(self, master):
         self.master = master
         self.master.title('Package Food Database')
-        self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r"Essential\data\food_data.db"))
-        self.plotter = plotter()
-        self.__curr_index = 0
-        
-        # Search food from database -----------------
 
         try:
             self.food_search = FoodSearch()
         except FileNotFoundError:
             prepare_db()
             self.food_search = FoodSearch()
+
+        self.df = pd.read_sql_query("SELECT * FROM food_data", sqlite3.connect(r"Essential\data\food_data.db"))
+        self.plotter = plotter()
+        self.__curr_index = 0
+        
+        # Search food from database ----------------
 
         self.search_var = tk.StringVar()
         self.search_var.trace('w', self.search_callback)
